@@ -2,30 +2,60 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './RegistrationForm.css';
 
+import { formatPhoneNumber } from './stringUtils';
+
 function RegistrationForm() {
   const apiRegistrations = 'http://localhost/projectX/hs/apiProjectX/registrations';
-  // const apiRegistrations = 'test';
 
   const [driverInfo, setDriverInfo] = useState('');
+  const [driverLicense, setDriverLicense] = useState('');
   const [autoInfo, setAutoInfo] = useState('');
   const [contactInfo, setContactInfo] = useState('');
 
   const [driverInfoError, setDriverInfoError] = useState(false);
+  const [driverLicenseError, setDriverLicenseError] = useState(false);
   const [autoInfoError, setAutoInfoError] = useState(false);
   const [contactInfoError, setContactInfoError] = useState(false);
-
+  // const handleChangeDriverInfo = (e) => {
+  //   setDriverInfo(e.target.value);
+  //   setDriverInfoError(false);
+  // };
   const handleChangeDriverInfo = (e) => {
-    setDriverInfo(e.target.value);
+    const inputValue = e.target.value;
+    const formattedValue = inputValue
+      .split(' ') 
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) 
+      .join(' '); 
+
+    setDriverInfo(formattedValue);
     setDriverInfoError(false);
+  };
+
+   const handleChangeDriverLicense = (e) => {
+    setDriverLicense(e.target.value);
+    setDriverLicenseError(false);
   };
 
   const handleChangeAutoInfo = (e) => {
     setAutoInfo(e.target.value);
     setAutoInfoError(false);
   };
-
+  // const handleChangeContactInfo = (e) => {
+  //   setContactInfo(e.target.value);
+  //   setContactInfoError(false);
+  // };
   const handleChangeContactInfo = (e) => {
-    setContactInfo(e.target.value);
+    let inputValue = e.target.value;
+    // Ограничиваем ввод только цифрами
+    inputValue = inputValue.replace(/\D/g, '');
+    // Ограничиваем длину ввода до 10 цифр
+    if (inputValue.length > 10) {
+      inputValue = inputValue.slice(0, 10);
+    }
+
+    // Форматируем номер телефона
+    const formattedPhoneNumber = formatPhoneNumber(inputValue);
+    setContactInfo(formattedPhoneNumber);
     setContactInfoError(false);
   };
 
@@ -35,6 +65,9 @@ function RegistrationForm() {
     if (!driverInfo.trim()) {
       setDriverInfoError(true);
     }
+    if (!driverLicense.trim()) {
+      setDriverLicenseError(true);
+    }
     if (!autoInfo.trim()) {
       setAutoInfoError(true);
     }
@@ -42,24 +75,29 @@ function RegistrationForm() {
       setContactInfoError(true);
     }
 
-    if (!driverInfo.trim() || !autoInfo.trim() || !contactInfo.trim()) {
+    if (!driverInfo.trim() || !driverLicense.trim() || !autoInfo.trim() || !contactInfo.trim()) {
       alert('Будь ласка, заповніть усі поля');
       return;
     }
 
     try {
-      const data = `${driverInfo}, ${autoInfo}, ${contactInfo}`;
+      const data = `${driverInfo}, ${driverLicense.toUpperCase()}, ${autoInfo.toUpperCase()}, ${contactInfo},`;
       const response = await axios.post(apiRegistrations, data);
+      // console.log(driverInfo, driverLicense, autoInfo, contactInfo);
       alert('Ви успішно зареєструвались! Щасливої дороги!!!');
 
       setDriverInfo('');
+      setDriverLicense('');
       setAutoInfo('');
       setContactInfo('');
+
     } catch (error) {
       console.error('Помилка при відправленні даних:', error);
     }
   };
 
+  const upperCaseAutoInfo = autoInfo.toUpperCase();
+  const upperCaseDriverLicense = driverLicense.toUpperCase();
   return (
     <div className="formContainer">
       <h5 className="title">Форма реєстрації для водія</h5>
@@ -70,16 +108,25 @@ function RegistrationForm() {
             value={driverInfo}
             onChange={handleChangeDriverInfo}
             className={`input ${driverInfoError ? 'error' : ''}`}
-            placeholder="Інформація про водія"
+            placeholder="ПІП водія"
           />
         </label>
         <label className="label">
           <input
             type="text"
-            value={autoInfo}
+            value={upperCaseDriverLicense}
+            onChange={handleChangeDriverLicense}
+            className={`input ${driverLicenseError ? 'error' : ''}`}
+            placeholder="Водійське посвідчення"
+          />
+        </label>
+        <label className="label">
+          <input
+            type="text"
+            value={upperCaseAutoInfo}
             onChange={handleChangeAutoInfo}
             className={`input ${autoInfoError ? 'error' : ''}`}
-            placeholder="Інформація про авто"
+            placeholder="Номерний знак авто"
           />
         </label>
         <label className="label">
