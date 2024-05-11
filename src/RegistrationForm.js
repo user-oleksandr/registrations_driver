@@ -5,8 +5,10 @@ import './RegistrationForm.css';
 import { formatPhoneNumber } from './stringUtils';
 
 function RegistrationForm() {
-  const apiRegistrations = 'http://localhost/projectX/hs/apiProjectX/registrations';
-
+  
+  const apiRegistrations = process.env.REACT_APP_API_REGISTRATIONS;
+  const authToken = process.env.REACT_APP_AUTH_TOKEN;
+  
   const [driverInfo, setDriverInfo] = useState('');
   const [driverLicense, setDriverLicense] = useState('');
   const [autoInfo, setAutoInfo] = useState('');
@@ -16,10 +18,7 @@ function RegistrationForm() {
   const [driverLicenseError, setDriverLicenseError] = useState(false);
   const [autoInfoError, setAutoInfoError] = useState(false);
   const [contactInfoError, setContactInfoError] = useState(false);
-  // const handleChangeDriverInfo = (e) => {
-  //   setDriverInfo(e.target.value);
-  //   setDriverInfoError(false);
-  // };
+
   const handleChangeDriverInfo = (e) => {
     const inputValue = e.target.value;
     const formattedValue = inputValue
@@ -40,10 +39,7 @@ function RegistrationForm() {
     setAutoInfo(e.target.value);
     setAutoInfoError(false);
   };
-  // const handleChangeContactInfo = (e) => {
-  //   setContactInfo(e.target.value);
-  //   setContactInfoError(false);
-  // };
+
   const handleChangeContactInfo = (e) => {
     let inputValue = e.target.value;
     // Ограничиваем ввод только цифрами
@@ -52,7 +48,6 @@ function RegistrationForm() {
     if (inputValue.length > 10) {
       inputValue = inputValue.slice(0, 10);
     }
-
     // Форматируем номер телефона
     const formattedPhoneNumber = formatPhoneNumber(inputValue);
     setContactInfo(formattedPhoneNumber);
@@ -82,8 +77,14 @@ function RegistrationForm() {
 
     try {
       const data = `${driverInfo}, ${driverLicense.toUpperCase()}, ${autoInfo.toUpperCase()}, ${contactInfo},`;
-      const response = await axios.post(apiRegistrations, data);
-      // console.log(driverInfo, driverLicense, autoInfo, contactInfo);
+      const response = await axios.post(apiRegistrations, data, {
+        headers: {
+          'Authorization': `Basic ${authToken}`,
+          'Content-Type': 'application/json'
+        }    
+      });
+      
+      console.log(driverInfo, driverLicense, autoInfo, contactInfo);
       alert('Ви успішно зареєструвались! Щасливої дороги!!!');
 
       setDriverInfo('');
@@ -98,6 +99,7 @@ function RegistrationForm() {
 
   const upperCaseAutoInfo = autoInfo.toUpperCase();
   const upperCaseDriverLicense = driverLicense.toUpperCase();
+
   return (
     <div className="formContainer">
       <h5 className="title">Форма реєстрації для водія</h5>
