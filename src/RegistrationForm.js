@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './RegistrationForm.css';
+import Animations from './animations'; 
 
 import { formatPhoneNumber } from './stringUtils';
 
@@ -18,6 +19,9 @@ function RegistrationForm() {
   const [driverLicenseError, setDriverLicenseError] = useState(false);
   const [autoInfoError, setAutoInfoError] = useState(false);
   const [contactInfoError, setContactInfoError] = useState(false);
+
+  const [isRegistered, setIsRegistered] = useState(false);
+  
 
   const handleChangeDriverInfo = (e) => {
     const inputValue = e.target.value;
@@ -92,6 +96,8 @@ function RegistrationForm() {
       setAutoInfo('');
       setContactInfo('');
 
+      setIsRegistered(true);
+
     } catch (error) {
       console.error('Помилка при відправленні даних:', error);
     }
@@ -142,6 +148,7 @@ function RegistrationForm() {
         </label>
         <button type="submit" className="button">Зареєструватись</button>
       </form>
+      {isRegistered && <Animations />}
     </div>
   );
 }
