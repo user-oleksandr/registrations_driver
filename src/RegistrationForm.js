@@ -22,7 +22,6 @@ function RegistrationForm() {
 
   const [isRegistered, setIsRegistered] = useState(false);
   
-
   const handleChangeDriverInfo = (e) => {
     const inputValue = e.target.value;
     const formattedValue = inputValue
@@ -95,9 +94,7 @@ function RegistrationForm() {
       setDriverLicense('');
       setAutoInfo('');
       setContactInfo('');
-
       setIsRegistered(true);
-
     } catch (error) {
       console.error('Помилка при відправленні даних:', error);
     }
