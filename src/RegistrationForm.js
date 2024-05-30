@@ -145,7 +145,7 @@ function RegistrationForm() {
         </label>
         <button type="submit" className="button">Зареєструватись</button>
       </form>
-      {isRegistered && <Animations />}
+      {/* {isRegistered && <Animations />} */}
     </div>
   );
 }
