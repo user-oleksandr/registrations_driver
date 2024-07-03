@@ -1,9 +1,4 @@
 body {
-  background-image: url('https://cdn1.komiz.io/16089838/share/front/logo.svg');
   background-color: #FAFAFA;
-  background-repeat: no-repeat;
-  background-position: center;
-  margin-top: 175px;
-  background-size: 10em;
   min-width: 300px;
 }
