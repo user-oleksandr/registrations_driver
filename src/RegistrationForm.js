@@ -10,7 +10,9 @@ import { formatPhoneNumber } from './stringUtils';
 function RegistrationForm() {
 
   const apiRegistrations = process.env.REACT_APP_API_REGISTRATIONS;
-  const authToken = process.env.REACT_APP_AUTH_TOKEN;
+  // const authToken = process.env.REACT_APP_AUTH_TOKEN;
+  const username = process.env.REACT_APP_USERNAME;
+  const password = process.env.REACT_APP_PASSWORD;
 
   const [driverInfo, setDriverInfo] = useState('');
   const [nameLat, setNameLat] = useState('');
@@ -98,37 +100,38 @@ function RegistrationForm() {
 
     try {
       // Заглушка для имитации успешной регистрации
-      setTimeout(() => {
-        toast.success('Ви успішно зареєструвались! Щасливої дороги!!!', {
-          className: 'toast-success custom-toast',
-          bodyClassName: 'toast-container',
-        });
+      // setTimeout(() => {
+      //   toast.success('Ви успішно зареєструвались! Щасливої дороги!!!', {
+      //     className: 'toast-success custom-toast',
+      //     bodyClassName: 'toast-container',
+      //   });
 
-        setDriverInfo('');
-        setNameLat('');
-        setContactInfo('');
-        setDriverPassport('');
-        setDriverLicense('');
-        setIsRegistered(true);
-      }, 1000);
+      //   setDriverInfo('');
+      //   setNameLat('');
+      //   setContactInfo('');
+      //   setDriverPassport('');
+      //   setDriverLicense('');
+      //   setIsRegistered(true);
+      // }, 1000);
 
-      // const data = `${driverInfo}, ${nameLat}, ${contactInfo}, ${driverPassport}, ${driverLicense.toUpperCase()}`;
-      // const response = await axios.post(apiRegistrations, data, {
-      //   headers: {
-      //     'Authorization': `Basic ${authToken}`,
-      //     'Content-Type': 'application/json'
-      //   }
-      // });
+      const data = `${driverInfo}, ${nameLat}, ${contactInfo}, ${driverPassport}, ${driverLicense.toUpperCase()}`;
+      const response = await axios.post(apiRegistrations, data, {
+        headers: {
+          // 'Authorization': `Basic ${authToken}`,
+          'Authorization': 'Basic ' + btoa(`${username}:${password}`),
+          'Content-Type': 'application/json'
+        }
+      });
 
-      // console.log(driverInfo, nameLat, contactInfo, driverPassport, driverLicense);
-      // toast.success('Ви успішно зареєструвались! Щасливої дороги!!!');
+      console.log(driverInfo, nameLat, contactInfo, driverPassport, driverLicense);
+      toast.success('Ви успішно зареєструвались! Щасливої дороги!!!');
 
-      // setDriverInfo('');
-      // setNameLat('');
-      // setContactInfo('');
-      // setDriverPassport('');
-      // setDriverLicense('');
-      // setIsRegistered(true);
+      setDriverInfo('');
+      setNameLat('');
+      setContactInfo('');
+      setDriverPassport('');
+      setDriverLicense('');
+      setIsRegistered(true);
     } catch (error) {
       console.error('Помилка при відправленні даних:', error);
       toast.error('Сталася помилка при відправленні даних.', {
