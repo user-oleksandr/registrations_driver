@@ -4,27 +4,25 @@ import './RegistrationForm.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
 import { formatPhoneNumber } from './stringUtils';
 
 function RegistrationForm() {
 
   const apiRegistrations = process.env.REACT_APP_API_REGISTRATIONS;
-  // const authToken = process.env.REACT_APP_AUTH_TOKEN;
   const username = process.env.REACT_APP_USERNAME;
   const password = process.env.REACT_APP_PASSWORD;
 
   const [driverInfo, setDriverInfo] = useState('');
-  const [nameLat, setNameLat] = useState('');
+  const [driverLicense, setDriverLicense] = useState('');
   const [contactInfo, setContactInfo] = useState('');
   const [driverPassport, setDriverPassport] = useState('');
-  const [driverLicense, setDriverLicense] = useState('');
+  const [authority, setAuthority] = useState('');
 
   const [driverInfoError, setDriverInfoError] = useState(false);
-  const [nameLatError, setNameLatError] = useState(false);
+  const [driverLicenseError, setDriverLicenseError] = useState(false);
   const [contactInfoError, setContactInfoError] = useState(false);
   const [driverPassportError, setDriverPassportError] = useState(false);
-  const [driverLicenseError, setDriverLicenseError] = useState(false);
+  const [authorityError, setAuthorityError] = useState(false);
 
   const [isRegistered, setIsRegistered] = useState(false);
 
@@ -39,24 +37,17 @@ function RegistrationForm() {
     setDriverInfoError(false);
   };
 
-  const handleChangeNameLat = (e) => {
-    const inputValue = e.target.value;
-    const formattedValue = inputValue
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
-
-    setNameLat(formattedValue);
-    setNameLatError(false);
+  const handleChangeDriverLicense = (e) => {
+    setDriverLicense(e.target.value);
+    setDriverLicenseError(false);
   };
 
   const handleChangeContactInfo = (e) => {
-    let inputValue = e.target.value;
-    inputValue = inputValue.replace(/\D/g, '');
+    let inputValue = e.target.value.replace(/\D/g, '');
     if (inputValue.length > 10) {
       inputValue = inputValue.slice(0, 10);
     }
-    const formattedPhoneNumber = formatPhoneNumber(inputValue);
+    const formattedPhoneNumber = `(${inputValue.slice(0, 3)})${inputValue.slice(3, 10)}`;
     setContactInfo(formattedPhoneNumber);
     setContactInfoError(false);
   };
@@ -66,9 +57,10 @@ function RegistrationForm() {
     setDriverPassportError(false);
   };
 
-  const handleChangeDriverLicense = (e) => {
-    setDriverLicense(e.target.value);
-    setDriverLicenseError(false);
+  const handleChangeAuthority = (e) => {
+    const inputValue = e.target.value.trimStart();
+    setAuthority(inputValue);
+    setAuthorityError(false);
   };
 
   const handleSubmit = async (e) => {
@@ -76,9 +68,6 @@ function RegistrationForm() {
 
     if (!driverInfo.trim()) {
       setDriverInfoError(true);
-    }
-    if (!nameLat.trim()) {
-      setNameLatError(true);
     }
     if (!contactInfo.trim()) {
       setContactInfoError(true);
@@ -89,8 +78,11 @@ function RegistrationForm() {
     if (!driverLicense.trim()) {
       setDriverLicenseError(true);
     }
+    if (!authority.trim()) {
+      setAuthorityError(true);
+    }
 
-    if (!driverInfo.trim() || !nameLat.trim() || !contactInfo.trim() || !driverPassport.trim() || !driverLicense.trim()) {
+    if (!driverInfo.trim() || !driverLicense.trim() || !contactInfo.trim() || !driverPassport.trim() || !authority.trim()) {
       toast.error('Будь ласка, заповніть усі поля', {
         className: 'toast-error custom-toast',
         bodyClassName: 'toast-container',
@@ -99,38 +91,22 @@ function RegistrationForm() {
     }
 
     try {
-      // Заглушка для имитации успешной регистрации
-      // setTimeout(() => {
-      //   toast.success('Ви успішно зареєструвались! Щасливої дороги!!!', {
-      //     className: 'toast-success custom-toast',
-      //     bodyClassName: 'toast-container',
-      //   });
-
-      //   setDriverInfo('');
-      //   setNameLat('');
-      //   setContactInfo('');
-      //   setDriverPassport('');
-      //   setDriverLicense('');
-      //   setIsRegistered(true);
-      // }, 1000);
-
-      const data = `${driverInfo}, ${nameLat}, ${contactInfo}, ${driverPassport}, ${driverLicense.toUpperCase()}`;
+      const data = `${driverInfo},${driverLicense.toUpperCase()},${contactInfo},${driverPassport},${authority}`;
       const response = await axios.post(apiRegistrations, data, {
         headers: {
-          // 'Authorization': `Basic ${authToken}`,
           'Authorization': 'Basic ' + btoa(`${username}:${password}`),
           'Content-Type': 'application/json'
         }
       });
 
-      console.log(driverInfo, nameLat, contactInfo, driverPassport, driverLicense);
+      console.log(driverInfo, driverLicense, contactInfo, driverPassport, authority);
       toast.success('Ви успішно зареєструвались! Щасливої дороги!!!');
 
       setDriverInfo('');
-      setNameLat('');
+      setDriverLicense('');
       setContactInfo('');
       setDriverPassport('');
-      setDriverLicense('');
+      setAuthority('');
       setIsRegistered(true);
     } catch (error) {
       console.error('Помилка при відправленні даних:', error);
@@ -161,10 +137,10 @@ function RegistrationForm() {
         <label className="label">
           <input
             type="text"
-            value={nameLat}
-            onChange={handleChangeNameLat}
-            className={`input ${nameLatError ? 'error' : ''}`}
-            placeholder="Name(lat.)"
+            value={upperCaseDriverLicense}
+            onChange={handleChangeDriverLicense}
+            className={`input ${driverLicenseError ? 'error' : ''}`}
+            placeholder="Водійське посвідчення"
           />
         </label>
         <label className="label">
@@ -188,13 +164,13 @@ function RegistrationForm() {
         <label className="label">
           <input
             type="text"
-            value={upperCaseDriverLicense}
-            onChange={handleChangeDriverLicense}
-            className={`input ${driverLicenseError ? 'error' : ''}`}
-            placeholder="Водійське посвідчення"
+            value={authority}
+            onChange={handleChangeAuthority}
+            className={`input ${authorityError ? 'error' : ''}`}
+            placeholder="Ким видан"
           />
         </label>
-
+       
         <button type="submit" className="button">Зареєструватись</button>
       </form>
       {/* {isRegistered && <Animations />} */}
