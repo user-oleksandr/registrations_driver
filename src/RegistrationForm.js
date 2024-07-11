@@ -131,7 +131,7 @@ function RegistrationForm() {
             value={driverInfo}
             onChange={handleChangeDriverInfo}
             className={`input ${driverInfoError ? 'error' : ''}`}
-            placeholder="ПІП водія"
+            placeholder="ПІБ водія"
           />
         </label>
         <label className="label">
