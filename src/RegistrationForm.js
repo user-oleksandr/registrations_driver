@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './RegistrationForm.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-import { formatPhoneNumber } from './stringUtils';
 
 function RegistrationForm() {
 
@@ -25,6 +23,7 @@ function RegistrationForm() {
   const [authorityError, setAuthorityError] = useState(false);
 
   const [isRegistered, setIsRegistered] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
 
   const handleChangeDriverInfo = (e) => {
     const inputValue = e.target.value;
@@ -38,16 +37,19 @@ function RegistrationForm() {
   };
 
   const handleChangeDriverLicense = (e) => {
-    setDriverLicense(e.target.value);
+    setDriverLicense(e.target.value.toUpperCase());
     setDriverLicenseError(false);
   };
 
   const handleChangeContactInfo = (e) => {
     let inputValue = e.target.value.replace(/\D/g, '');
-    if (inputValue.length > 10) {
-      inputValue = inputValue.slice(0, 10);
+    if (!inputValue.startsWith('380')) {
+      inputValue = '380' + inputValue.slice(3);
     }
-    const formattedPhoneNumber = `(${inputValue.slice(0, 3)})${inputValue.slice(3, 10)}`;
+    if (inputValue.length > 12) {
+      inputValue = inputValue.slice(0, 12);
+    }
+    const formattedPhoneNumber = `+${inputValue}`;
     setContactInfo(formattedPhoneNumber);
     setContactInfoError(false);
   };
@@ -58,8 +60,8 @@ function RegistrationForm() {
   };
 
   const handleChangeAuthority = (e) => {
-    const inputValue = e.target.value.trimStart();
-    setAuthority(inputValue);
+    const inputValue = e.target.value;
+    setAuthority(inputValue.charAt(0).toUpperCase() + inputValue.slice(1));
     setAuthorityError(false);
   };
 
@@ -90,6 +92,8 @@ function RegistrationForm() {
       return;
     }
 
+    setShowLoader(true);
+
     try {
       const data = `${driverInfo},${driverLicense.toUpperCase()},${contactInfo},${driverPassport},${authority}`;
       const response = await axios.post(apiRegistrations, data, {
@@ -114,10 +118,22 @@ function RegistrationForm() {
         className: 'toast-error custom-toast',
         bodyClassName: 'toast-container',
       });
+    } finally {
+      setShowLoader(false);
     }
   };
 
-  const upperCaseDriverLicense = driverLicense.toUpperCase();
+  useEffect(() => {
+    const contactInput = document.getElementById('contactInfo');
+    contactInput.addEventListener('focus', () => {
+      if (contactInfo === '') {
+        setContactInfo('+380');
+        setTimeout(() => {
+          contactInput.setSelectionRange(4, 4);
+        }, 0);
+      }
+    });
+  }, [contactInfo]);
 
   return (
     <div className="formContainer">
@@ -137,7 +153,7 @@ function RegistrationForm() {
         <label className="label">
           <input
             type="text"
-            value={upperCaseDriverLicense}
+            value={driverLicense.toUpperCase()}
             onChange={handleChangeDriverLicense}
             className={`input ${driverLicenseError ? 'error' : ''}`}
             placeholder="Водійське посвідчення"
@@ -146,6 +162,7 @@ function RegistrationForm() {
         <label className="label">
           <input
             type="text"
+            id="contactInfo"
             value={contactInfo}
             onChange={handleChangeContactInfo}
             className={`input ${contactInfoError ? 'error' : ''}`}
@@ -170,10 +187,18 @@ function RegistrationForm() {
             placeholder="Ким видан"
           />
         </label>
-       
+
         <button type="submit" className="button">Зареєструватись</button>
+
+        {showLoader && (
+          <div className="loader">
+            <svg className="envelope" viewBox="0 0 24 24">
+              <path d="M2 6h20v12H2z" fill="#FFD125" />
+              <path d="M0 8l12 8 12-8" fill="none" stroke="#fff" stroke-width="2" />
+            </svg>
+          </div>
+        )}
       </form>
-      {/* {isRegistered && <Animations />} */}
     </div>
   );
 }
